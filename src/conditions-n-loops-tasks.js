@@ -430,17 +430,35 @@ function rotateMatrix(matrix) {
  *  [2, 9, 5, 9]    => [2, 5, 9, 9]
  *  [-2, 9, 5, -3]  => [-3, -2, 5, 9]
  */
-function sortByAsc(arr) {
-  const newArr = arr;
-  for (let i = 1; i < arr.length; i += 1) {
-    for (let j = 0; j < i; j += 1) {
-      const index = i - j;
-      if (newArr[index] < newArr[index - 1]) {
-        [newArr[index], newArr[index - 1]] = [newArr[index - 1], newArr[index]];
+
+function pushToArr(array, element) {
+  const newArr = array;
+  newArr[newArr.length] = element;
+}
+function sortByAsc(array) {
+  const newArr = array;
+
+  function sortArr(arr) {
+    if (arr.length < 2) {
+      return arr;
+    }
+    const pivot = arr[0];
+    const arr1 = [];
+    const arr2 = [];
+
+    for (let i = 1; i < arr.length; i += 1) {
+      if (pivot > arr[i]) {
+        pushToArr(arr1, arr[i]);
       } else {
-        j += arr.length;
+        pushToArr(arr2, arr[i]);
       }
     }
+    return [...sortArr(arr1), pivot, ...sortArr(arr2)];
+  }
+  const result = sortArr(array);
+
+  for (let i = 0; i < newArr.length; i += 1) {
+    newArr[i] = result[i];
   }
 }
 
@@ -461,8 +479,28 @@ function sortByAsc(arr) {
  *  '012345', 3 => '024135' => '043215' => '031425'
  *  'qwerty', 3 => 'qetwry' => 'qtrewy' => 'qrwtey'
  */
-function shuffleChar(/* str, iterations */) {
-  throw new Error('Not implemented');
+function shuffleChar(str, iterations) {
+  let string = str;
+  let left = '';
+  let right = '';
+  let leftIterations = iterations;
+  while (leftIterations > 0) {
+    for (let i = 0; i < string.length; i += 1) {
+      if (i % 2) {
+        right += string[i];
+      } else {
+        left += string[i];
+      }
+    }
+    string = left + right;
+    left = '';
+    right = '';
+    leftIterations -= 1;
+    if (string === str) {
+      leftIterations = iterations % (iterations - leftIterations);
+    }
+  }
+  return string;
 }
 
 /**
@@ -482,8 +520,52 @@ function shuffleChar(/* str, iterations */) {
  * @param {number} number The source number
  * @returns {number} The nearest larger number, or original number if none exists.
  */
-function getNearestBigger(/* number */) {
-  throw new Error('Not implemented');
+function getNearestBigger(number) {
+  const num = String(number);
+  let numToSort = [];
+  let index;
+  let digit;
+  let smallestGreater;
+  let smallestGreaterIndex;
+  let result = '';
+  for (let i = num.length - 1; i >= 0; i -= 1) {
+    if (!digit) {
+      if (+num[i + 1] > +num[i]) {
+        index = i;
+        digit = num[i];
+      }
+    } else {
+      result = num[i] + result;
+    }
+  }
+  if (!digit) {
+    return number;
+  }
+
+  for (let i = index + 1; i < num.length; i += 1) {
+    if (smallestGreater) {
+      if (+num[i] > +digit && +num[i] < smallestGreater) {
+        smallestGreater = +num[i];
+        smallestGreaterIndex = i;
+      }
+    } else {
+      smallestGreater = +num[i];
+      smallestGreaterIndex = i;
+    }
+  }
+  result += String(smallestGreater);
+
+  for (let i = index; i < num.length; i += 1) {
+    if (i !== smallestGreaterIndex) {
+      numToSort = [...numToSort, +num[i]];
+    }
+  }
+  sortByAsc(numToSort);
+
+  for (let i = 0; i < numToSort.length; i += 1) {
+    result += String(numToSort[i]);
+  }
+  return +result;
 }
 
 module.exports = {
